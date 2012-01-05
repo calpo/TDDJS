@@ -10,6 +10,6 @@ TestCase("addTest", {
 	},
 	"test 2 plus 3": function(){
 		var r = add(2, 3);
-		assertEquals(3, r);
+		assertEquals(5, r);
 	}
 });

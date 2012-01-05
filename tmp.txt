@@ -1,9 +1,0 @@
-mkdir -p ~/projects/github
-cd ~/local/bin
-wget http://js-test-driver.googlecode.com/files/JsTestDriver-1.2.1.jar
-
-.bashrc ----------------
-# JsTestDriver
-export JSTESTDRIVER_HOME=~/local/bin
-
-java -jar $JSTESTDRIVER_HOME/JsTestDriver-1.2.1.jar --port 4224

@@ -1,1 +1,7 @@
 テスト駆動JavaScriptの写経など
+
+cd 対象ディレクトリ
+jsTestDriver.conf確認
+jstestdriver --port 4224 &
+http://localhost:4224/
+jsautotest

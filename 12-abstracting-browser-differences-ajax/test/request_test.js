@@ -3,11 +3,13 @@
 
 	TestCase("GetRequestTest", {
 		setUp: function () {
-			this.originalCreate = ajax.create;
+			this.ajaxCreate = ajax.create;
+			this.xhr = Object.create(fakeXMLHttpRequest);
+			ajax.create = stubFn(this.xhr);
 		},
 
 		setDown: function () {
-			this.create = ajax.originalCreate;
+			this.create = this.ajaxCreate;
 		},
 
 		"test should define get method": function () {
@@ -21,21 +23,62 @@
 		},
 
 		"test should obtain an XMLHttpRequest object": function () {
-			ajax.create = stubFn();
 			ajax.get("/url");
 
 			assert(ajax.create.called);
 		},
 
 		"test should call open() with valid params": function () {
-			var openStub = stubFn();
-			ajax.create = stubFn({
-				open: openStub
-			});
 			var url = "/url";
 			ajax.get(url);
 
-			assertEquals(["GET", url, true], openStub.args);
+			assertEquals(["GET", url, true], this.xhr.open.args);
+		},
+
+		"test should add onreadystatechange handler": function () {
+			ajax.get("/url");
+
+			assertFunction(this.xhr.onreadystatechange);
+		},
+
+		"test should call send": function () {
+			ajax.get("/url");
+
+			assert(this.xhr.send.called);
+		}
+	});
+
+	TestCase("ReadyStateHandlerTest", {
+		setUp: function () {
+			this.ajaxCreate = ajax.create;
+			this.xhr = Object.create(fakeXMLHttpRequest);
+			ajax.create = stubFn(this.xhr);
+		},
+
+		tearDown: function () {
+			ajax.create = this.ajaxCreate;
+		},
+
+		"test should success handler for status 200": function () {
+			this.xhr.readyState = 4;
+			this.xhr.status = 200;
+			var success = stubFn();
+			ajax.get("/url", { success: success });
+
+			this.xhr.onreadystatechange();
+
+			assert(success.called);
+		},
+
+		"test should not throw error without success handler": function () {
+			this.xhr.readyState = 4;
+			this.xhr.status = 200;
+
+			ajax.get("/url");
+
+			assertNoException(function () {
+				this.xhr.onreadystatechange();
+			}.bind(this));
 		}
 	});
 }());

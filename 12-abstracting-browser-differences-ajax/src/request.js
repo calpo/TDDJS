@@ -1,3 +1,5 @@
+tddjs.noop = function () {};
+
 (function () {
 	var ajax = tddjs.namespace("ajax");
 
@@ -24,9 +26,10 @@
 		transport.onreadystatechange = function () {
 			if (transport.readyState == 4) {
 				requestComplete(transport, options);
+				transport.onreadystatechange = tddjs.noop;
 			}
 		};
-		transport.send();
+		transport.send(null);
 	}
 
 	ajax.get = get;

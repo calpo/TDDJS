@@ -3,6 +3,7 @@
 
 	TestCase("GetRequestTest", {
 		setUp: function () {
+			this.tddjsIsLocal = tddjs.isLocal;
 			this.ajaxCreate = ajax.create;
 			this.xhr = Object.create(fakeXMLHttpRequest);
 			ajax.create = stubFn(this.xhr);
@@ -50,6 +51,7 @@
 
 	TestCase("ReadyStateHandlerTest", {
 		setUp: function () {
+			this.tddjsIsLocal = tddjs.isLocal;
 			this.ajaxCreate = ajax.create;
 			this.xhr = Object.create(fakeXMLHttpRequest);
 			ajax.create = stubFn(this.xhr);
@@ -79,6 +81,33 @@
 			assertNoException(function () {
 				this.xhr.onreadystatechange();
 			}.bind(this));
+		},
+
+		"test should pass null as argument to send": function () {
+			ajax.get("/url");
+
+			assertNull(this.xhr.send.args[0]);
+		},
+
+		"test should call success handler for local requests": function () {
+			this.xhr.readyState = 4;
+			this.xhr.status = 0;
+			var success = stubFn();
+			tddjs.isLocal = stubFn(true);
+
+			ajax.get("file.html", {success: success});
+			this.xhr.onreadystatechange();
+
+			assert(success.called);
+		},
+
+		"test should reset onreadystatechange when complete": function () {
+			this.xhr.readyState = 4;
+			ajax.get("/url");
+
+			this.xhr.onreadystatechange();
+
+			assertSame(tddjs.noop, this.xhr.onreadystatechange);
 		}
 	});
 }());
